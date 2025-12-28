@@ -15,4 +15,5 @@ func initConfig() {
 		panic(fmt.Errorf("fatal error config file: %w", err))
 	}
 	viper.SetDefault("environment", "production")
+	viper.SetDefault("serviceName", "sach-telegram-bot")
 }

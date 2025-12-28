@@ -1,13 +1,18 @@
 package main
 
 import (
+	"context"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/mellomaths/sach-telegram-bot/internal/sac"
+	"github.com/jackc/pgx/v5"
+	repo "github.com/mellomaths/sach-telegram-bot/internal/adapters/postgresql/sqlc"
+	"github.com/mellomaths/sach-telegram-bot/internal/sacs"
 	"go.uber.org/zap"
 )
 
 type bot struct {
 	api *tgbotapi.BotAPI
+	db  *pgx.Conn
 }
 
 func (b *bot) mount(apiToken string) error {
@@ -24,6 +29,7 @@ func (b *bot) mount(apiToken string) error {
 }
 
 func (b *bot) start() error {
+	sacsService := sacs.NewService(repo.New(b.db))
 	zap.L().Info(
 		"Starting bot loop",
 		zap.String("bot", b.api.Self.UserName),
@@ -43,14 +49,14 @@ func (b *bot) start() error {
 			zap.Int64("from", update.Message.From.ID),
 			zap.String("text", update.Message.Text),
 		)
-		u := sac.User{
+		u := sacs.User{
 			Id:        update.Message.From.ID,
 			FirstName: update.Message.From.FirstName,
 			LastName:  update.Message.From.LastName,
 			UserName:  update.Message.From.UserName,
 		}
 		if !update.Message.IsCommand() {
-			sac.SaveSAC(u, update.Message.Text)
+			sacsService.SaveSac(context.Background(), u, update.Message.Text)
 		}
 
 		// Extract the command from the Message.
@@ -61,7 +67,7 @@ func (b *bot) start() error {
 		case "status":
 			msg.Text = "I'm ok."
 		case "sac":
-			sac.SaveSAC(u, update.Message.Text)
+			sacsService.SaveSac(context.Background(), u, update.Message.Text)
 		default:
 			continue
 		}
