@@ -70,18 +70,27 @@ func (b *bot) start() error {
 		// Extract the command from the Message.
 		msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
 		text := b.cleanCommandMessage(update.Message.Text)
-		if text == "" {
-			zap.L().Info("Command is empty", zap.Int64("user_id", u.Id), zap.String("text", update.Message.Text))
-			msg.Text = "Por favor, digite a reclamação."
-			b.api.Send(msg)
-			continue
-		}
 		switch update.Message.Command() {
 		case "help":
+			msg.ReplyToMessageID = update.Message.MessageID
 			msg.Text = "I'll keep your complaints on file for review, use /sac to send me one."
 		case "status":
+			msg.ReplyToMessageID = update.Message.MessageID
 			msg.Text = "I'm ok."
 		case "sac":
+			msg.ReplyToMessageID = update.Message.MessageID
+			if text == "" {
+				msg.Text = "Por favor, digite a reclamação."
+				zap.L().Info(
+					"Replying",
+					zap.String("bot", b.api.Self.UserName),
+					zap.Int64("bot_id", b.api.Self.ID),
+					zap.Int64("user_id", update.Message.From.ID),
+					zap.String("text", msg.Text),
+				)
+				b.api.Send(msg)
+				continue
+			}
 			sacsService.SaveSac(context.Background(), u, text)
 			msg.Text = "Reclamação salva com sucesso."
 		default:
@@ -89,13 +98,12 @@ func (b *bot) start() error {
 			continue
 		}
 
-		msg.ReplyToMessageID = update.Message.MessageID
 		zap.L().Info(
 			"Replying",
 			zap.String("bot", b.api.Self.UserName),
 			zap.Int64("bot_id", b.api.Self.ID),
 			zap.Int64("user_id", update.Message.From.ID),
-			zap.String("text", update.Message.Text),
+			zap.String("text", msg.Text),
 		)
 		b.api.Send(msg)
 	}
