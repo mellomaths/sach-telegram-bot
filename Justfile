@@ -33,7 +33,7 @@ docker-remove:
     docker rm sach-telegram-bot
 
 docker-compose-up:
-    docker compose --build up -d
+    docker compose up --build -d
 
 docker-compose-down:
     docker compose down
