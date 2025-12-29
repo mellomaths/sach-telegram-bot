@@ -19,3 +19,15 @@ pg-migration-down:
 
 create-migration NAME:
     goose -s create {{NAME}} sql
+
+docker-build:
+    docker build -t sach-telegram-bot .
+
+docker-run:
+    docker run -d --name sach-telegram-bot -p 8080:8080 sach-telegram-bot
+
+docker-stop:
+    docker stop sach-telegram-bot
+
+docker-remove:
+    docker rm sach-telegram-bot
