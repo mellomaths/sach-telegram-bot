@@ -9,4 +9,5 @@ RUN go build -o sach-telegram-bot ./cmd
 FROM alpine:latest
 WORKDIR /app
 COPY --from=builder /app/sach-telegram-bot .
+COPY configs.json .
 CMD ["./sach-telegram-bot"]
