@@ -1,0 +1,5 @@
+services:
+  sach-telegram-bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
