@@ -24,7 +24,7 @@ docker-build:
     docker build -t sach-telegram-bot .
 
 docker-run:
-    docker run -d --name sach-telegram-bot -p 8080:8080 sach-telegram-bot
+    docker run -d --name sach-telegram-bot sach-telegram-bot
 
 docker-stop:
     docker stop sach-telegram-bot
