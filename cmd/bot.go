@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"strings"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/jackc/pgx/v5"
@@ -26,6 +27,12 @@ func (b *bot) mount(apiToken string) error {
 	zap.L().Info("Authorized on account", zap.String("bot", bot.Self.UserName))
 	b.api = bot
 	return nil
+}
+
+func (b *bot) cleanCommandMessage(command string, text string) string {
+	text = strings.Replace(text, command, "", 1)
+	text = strings.TrimSpace(text)
+	return text
 }
 
 func (b *bot) start() error {
@@ -68,7 +75,7 @@ func (b *bot) start() error {
 		case "status":
 			msg.Text = "I'm ok."
 		case "sac":
-			sacsService.SaveSac(context.Background(), u, update.Message.Text)
+			sacsService.SaveSac(context.Background(), u, b.cleanCommandMessage("/sac", update.Message.Text))
 		default:
 			zap.L().Info("Command not found", zap.Int64("user_id", u.Id), zap.String("text", update.Message.Text))
 			continue
