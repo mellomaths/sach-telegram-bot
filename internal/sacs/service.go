@@ -42,12 +42,12 @@ func (s *svc) SaveSac(ctx context.Context, u User, msg string) error {
 				LastName:  u.LastName,
 			})
 			if err != nil {
-				zap.L().Error("Error creating user", zap.Error(err))
+				zap.L().Error("Error creating user", zap.Error(err), zap.Int64("user_id", u.Id))
 				return err
 			}
-			zap.L().Info("User created", zap.Any("user", user))
+			zap.L().Info("User created", zap.Any("user", user), zap.Int64("user_id", u.Id))
 		} else {
-			zap.L().Error("Error finding user", zap.Error(err))
+			zap.L().Error("Error finding user", zap.Error(err), zap.Int64("user_id", u.Id))
 			return err
 		}
 	}
