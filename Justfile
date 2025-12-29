@@ -2,6 +2,12 @@
 run:
     go run cmd/*.go
 
+build:
+    go build -o sach-telegram-bot ./cmd
+
+exec:
+    ./sach-telegram-bot
+
 sqlc:
     sqlc generate
 
