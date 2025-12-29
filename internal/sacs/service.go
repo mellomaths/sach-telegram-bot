@@ -29,7 +29,7 @@ func NewService(repo *repo.Queries) Service {
 }
 
 func (s *svc) SaveSac(ctx context.Context, u User, msg string) error {
-	zap.L().Info("Saving SAC", zap.Int64("user_id", u.Id), zap.String("message", msg))
+	zap.L().Info("Saving SAC", zap.Int64("user_id", u.Id), zap.String("text", msg))
 	user, err := s.repo.FindUserByID(ctx, u.Id)
 	// if user not found, create it
 	if err != nil {
@@ -45,7 +45,7 @@ func (s *svc) SaveSac(ctx context.Context, u User, msg string) error {
 				zap.L().Error("Error creating user", zap.Error(err), zap.Int64("user_id", u.Id))
 				return err
 			}
-			zap.L().Info("User created", zap.Any("user", user), zap.Int64("user_id", u.Id))
+			zap.L().Info("User created", zap.Int64("user_id", u.Id))
 		} else {
 			zap.L().Error("Error finding user", zap.Error(err), zap.Int64("user_id", u.Id))
 			return err
@@ -56,9 +56,9 @@ func (s *svc) SaveSac(ctx context.Context, u User, msg string) error {
 		Message: msg,
 	})
 	if err != nil {
-		zap.L().Error("Error creating SAC", zap.Error(err), zap.Int64("user_id", user.ID), zap.String("message", msg))
+		zap.L().Error("Error creating SAC", zap.Error(err), zap.Int64("user_id", user.ID), zap.String("text", msg))
 		return err
 	}
-	zap.L().Info("SAC created", zap.Int64("user_id", user.ID), zap.String("message", msg), zap.Int64("sac_id", sac.ID))
+	zap.L().Info("SAC created", zap.Int64("user_id", user.ID), zap.String("text", msg), zap.Int64("sac_id", sac.ID))
 	return nil
 }

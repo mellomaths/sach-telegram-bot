@@ -33,7 +33,7 @@ func (b *bot) start() error {
 	zap.L().Info(
 		"Starting bot loop",
 		zap.String("bot", b.api.Self.UserName),
-		zap.Int64("botId", b.api.Self.ID),
+		zap.Int64("bot_id", b.api.Self.ID),
 	)
 	uc := tgbotapi.NewUpdate(0)
 	uc.Timeout = 60
@@ -45,8 +45,8 @@ func (b *bot) start() error {
 		zap.L().Info(
 			"Received a message",
 			zap.String("bot", b.api.Self.UserName),
-			zap.Int64("botId", b.api.Self.ID),
-			zap.Int64("from", update.Message.From.ID),
+			zap.Int64("bot_id", b.api.Self.ID),
+			zap.Int64("user_id", update.Message.From.ID),
 			zap.String("text", update.Message.Text),
 		)
 		u := sacs.User{
@@ -56,7 +56,8 @@ func (b *bot) start() error {
 			UserName:  update.Message.From.UserName,
 		}
 		if !update.Message.IsCommand() {
-			sacsService.SaveSac(context.Background(), u, update.Message.Text)
+			zap.L().Info("Not a command", zap.Int64("user_id", u.Id), zap.String("text", update.Message.Text))
+			continue
 		}
 
 		// Extract the command from the Message.
@@ -69,6 +70,7 @@ func (b *bot) start() error {
 		case "sac":
 			sacsService.SaveSac(context.Background(), u, update.Message.Text)
 		default:
+			zap.L().Info("Command not found", zap.Int64("user_id", u.Id), zap.String("text", update.Message.Text))
 			continue
 		}
 
@@ -76,8 +78,8 @@ func (b *bot) start() error {
 		zap.L().Info(
 			"Replying",
 			zap.String("bot", b.api.Self.UserName),
-			zap.Int64("botId", b.api.Self.ID),
-			zap.Int64("to", update.Message.From.ID),
+			zap.Int64("bot_id", b.api.Self.ID),
+			zap.Int64("user_id", update.Message.From.ID),
 			zap.String("text", update.Message.Text),
 		)
 		b.api.Send(msg)
