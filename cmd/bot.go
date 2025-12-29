@@ -29,8 +29,8 @@ func (b *bot) mount(apiToken string) error {
 	return nil
 }
 
-func (b *bot) cleanCommandMessage(command string, text string) string {
-	text = strings.Replace(text, command, "", 1)
+func (b *bot) cleanCommandMessage(text string) string {
+	text = strings.Replace(text, "/sac", "", 1)
 	text = strings.TrimSpace(text)
 	return text
 }
@@ -69,13 +69,21 @@ func (b *bot) start() error {
 
 		// Extract the command from the Message.
 		msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
+		text := b.cleanCommandMessage(update.Message.Text)
+		if text == "" {
+			zap.L().Info("Command is empty", zap.Int64("user_id", u.Id), zap.String("text", update.Message.Text))
+			msg.Text = "Por favor, digite a reclamação."
+			b.api.Send(msg)
+			continue
+		}
 		switch update.Message.Command() {
 		case "help":
 			msg.Text = "I'll keep your complaints on file for review, use /sac to send me one."
 		case "status":
 			msg.Text = "I'm ok."
 		case "sac":
-			sacsService.SaveSac(context.Background(), u, b.cleanCommandMessage("/sac", update.Message.Text))
+			sacsService.SaveSac(context.Background(), u, text)
+			msg.Text = "Reclamação salva com sucesso."
 		default:
 			zap.L().Info("Command not found", zap.Int64("user_id", u.Id), zap.String("text", update.Message.Text))
 			continue
